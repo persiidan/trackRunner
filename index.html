@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Runner</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏃</text></svg>">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div class="game-container">
+        <div id="menuScreen" class="screen">
+            <h1>Track Runner</h1>
+            <div class="menu">
+                <button id="startButton" class="btn">Start</button>
+                <button id="scoreboardButton" class="btn">Scoreboard</button>
+            </div>
+            <div class="score-display">
+                <div class="current-score">
+                    <span id="scoreValue">0</span>
+                    <span class="score-label">SCORE</span>
+                </div>
+                <div class="high-score">
+                    <span id="highScoreValue">0</span>
+                    <span class="score-label">HIGH SCORE</span>
+                    <span id="highScorePlayer">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="gameScreen" class="screen hidden">
+            <div id="gameContainer"></div>
+            <div class="hud">
+                <div class="score">Score: <span id="currentScore">0</span></div>
+                <button id="pauseButton" class="btn">Pause</button>
+            </div>
+            <div id="devModeIndicator" class="dev-mode-indicator hidden">DEV MODE</div>
+        </div>
+
+        <!-- Scoreboard Modal -->
+        <div id="scoreboardModal" class="modal">
+            <div class="modal-content">
+                <h2>High Scores</h2>
+                <div id="scoresList"></div>
+                <button id="closeScoreboard" class="btn">Close</button>
+            </div>
+        </div>
+
+        <!-- Player Name Input Modal -->
+        <div id="playerNameModal" class="modal">
+            <div class="modal-content">
+                <h2>New High Score!</h2>
+                <input type="text" id="playerNameInput" maxlength="10" placeholder="Enter your name">
+                <button id="submitScore" class="btn">Submit</button>
+            </div>
+        </div>
+
+        <!-- Countdown Overlay -->
+        <div id="countdownOverlay" class="overlay hidden">
+            <div id="countdown">3</div>
+        </div>
+
+        <!-- Pause Overlay -->
+        <div id="pauseOverlay" class="overlay hidden">
+            <div class="pause-menu">
+                <h2>Paused</h2>
+                <button id="resumeButton" class="btn">Resume</button>
+                <button id="quitButton" class="btn">Quit to Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/gameState.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/obstacles.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html> 
