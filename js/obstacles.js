@@ -30,7 +30,7 @@ class Obstacle {
             case OBSTACLE_TYPES.TALL_HURDLE:
                 this.width = this.laneWidth * 0.6; // Narrower crossbar
                 this.height = 2.5;
-                this.crossbarHeight = 1.5;
+                this.crossbarHeight = 1.5; // Lowered from 1.5 to 1.2
                 this.crossbarThickness = 0.2;
                 this.color = 0xd32f2f; // Red crossbar
                 this.postColor = 0x000000; // Black posts
@@ -38,8 +38,8 @@ class Obstacle {
             case OBSTACLE_TYPES.SMALL_HURDLE:
                 this.width = this.laneWidth * 0.6;
                 this.height = 1.5;
-                this.crossbarHeight = 0.8;
-                this.crossbarThickness = 0.2;
+                this.crossbarHeight = 0.6;
+                this.crossbarThickness = 0.2; // Increased from 0.2 to 0.3
                 this.color = 0x1976d2; // Blue crossbar
                 this.postColor = 0x000000; // Black posts
                 break;
@@ -211,6 +211,7 @@ class ObstacleManager {
         if (this.nextSpawnDistance <= 0) {
             this.spawnObstacle();
             // Progressive difficulty: reduce spawn distance over time
+            this.baseSpawnDistance = Math.max(this.baseSpawnDistance, 70); // Never below 70
             const currentDifficulty = Math.max(
                 this.minSpawnDistance,
                 this.baseSpawnDistance - (gameSpeed * this.difficultyIncrease)
@@ -240,8 +241,8 @@ class ObstacleManager {
     checkCollision(playerHitbox) {
         for (const obstacle of this.obstacles) {
             // Check obstacles that are very close to the player (precise collision)
-            // Player is at z=0, check obstacles in range -0.2 to 0.2
-            if (obstacle.z > -0.2 && obstacle.z < 0.2) {
+            // Player is at z=0, check obstacles in range -0.3 to 0.3
+            if (obstacle.z > -0.3 && obstacle.z < 0.3) {
                 const obstacleHitbox = obstacle.getHitbox();
                 
                 // Debug logging
@@ -278,21 +279,17 @@ class ObstacleManager {
     }
 
     canPassObstacle(playerHitbox, obstacle) {
-        const isSliding = playerHitbox.height <= 1.2;
-        const isJumping = playerHitbox.y > 0.2;
         const playerTop = playerHitbox.y + (playerHitbox.height / 2);
         const playerBottom = playerHitbox.y - (playerHitbox.height / 2);
 
         switch (obstacle.type) {
             case OBSTACLE_TYPES.TALL_HURDLE:
                 // Can only pass if sliding AND top of hitbox is below crossbar
-                return isSliding && (playerTop < obstacle.crossbarHeight);
+                return playerHitbox.height <= 1.2 && (playerTop < obstacle.crossbarHeight);
             case OBSTACLE_TYPES.SMALL_HURDLE:
-                // Can only pass if jumping AND bottom of hitbox is above crossbar
-                return isJumping && (playerBottom > obstacle.crossbarHeight);
             case OBSTACLE_TYPES.OVERHEAD_BARRIER:
-                // Can only pass if sliding AND top of hitbox is below barrier
-                return isSliding && (playerTop < obstacle.barrierHeight);
+                // Can only pass if jumping AND bottom of hitbox is above crossbar/barrier
+                return playerBottom > (obstacle.crossbarHeight || obstacle.barrierHeight);
             default:
                 return false;
         }

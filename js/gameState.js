@@ -2,7 +2,6 @@ class GameState {
     constructor() {
         this.state = GAME_STATES.MENU;
         this.score = 0;
-        this.highScores = JSON.parse(localStorage.getItem('trackRunnerHighScores')) || [];
         this.lastFrameTime = 0;
         this.deltaTime = 0;
         this.gameSpeed = 5;
@@ -17,6 +16,9 @@ class GameState {
     setState(newState) {
         this.state = newState;
         this.updateUI();
+        if (newState === GAME_STATES.MENU) {
+            this.updateHighScoreDisplay();
+        }
     }
 
     updateUI() {
@@ -86,45 +88,6 @@ class GameState {
     updateScore(newScore) {
         this.score = newScore;
         document.getElementById('currentScore').textContent = formatScore(this.score);
-        document.getElementById('scoreValue').textContent = formatScore(this.score);
-    }
-
-    isHighScore() {
-        return this.highScores.length < 5 || this.score > this.highScores[this.highScores.length - 1].score;
-    }
-
-    addHighScore(playerName) {
-        const newScore = {
-            name: playerName,
-            score: this.score
-        };
-
-        this.highScores.push(newScore);
-        this.highScores.sort((a, b) => b.score - a.score);
-
-        if (this.highScores.length > 5) {
-            this.highScores.pop();
-        }
-
-        localStorage.setItem('trackRunnerHighScores', JSON.stringify(this.highScores));
-        this.updateHighScoreDisplay();
-    }
-
-    addHighScoreWithScore(playerName, score) {
-        const newScore = {
-            name: playerName,
-            score: score
-        };
-
-        this.highScores.push(newScore);
-        this.highScores.sort((a, b) => b.score - a.score);
-
-        if (this.highScores.length > 5) {
-            this.highScores.pop();
-        }
-
-        localStorage.setItem('trackRunnerHighScores', JSON.stringify(this.highScores));
-        this.updateHighScoreDisplay();
     }
 
     saveScore(score, playerName) {
@@ -140,10 +103,19 @@ class GameState {
             // Add new player
             scores.push({ name: playerName, score: score });
         }
-        // Sort by score and keep top 10
+        // Sort by score and keep top 5 unique names
         scores.sort((a, b) => b.score - a.score);
-        scores = scores.slice(0, 10);
-        localStorage.setItem('trackRunnerScores', JSON.stringify(scores));
+        // Remove duplicate names, keep only best score per name
+        const uniqueScores = [];
+        const seenNames = new Set();
+        for (const entry of scores) {
+            if (!seenNames.has(entry.name)) {
+                uniqueScores.push(entry);
+                seenNames.add(entry.name);
+            }
+            if (uniqueScores.length >= 5) break;
+        }
+        localStorage.setItem('trackRunnerScores', JSON.stringify(uniqueScores));
     }
 
     getScores() {
@@ -165,6 +137,9 @@ class GameState {
                 this.updateHighScoreDisplay();
                 document.getElementById('scoreboardModal').classList.add('show');
             }
+        };
+        document.getElementById('dontSaveScore').onclick = () => {
+            document.getElementById('playerNameModal').classList.remove('show');
         };
     }
 

@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# trackRunner
-=======
 # Track Runner
 
 A web-based endless runner game inspired by Temple Run, set on an athletics track. Control your runner, avoid obstacles, and set high scores!

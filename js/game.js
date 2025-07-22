@@ -115,6 +115,13 @@ class Game {
             document.getElementById('scoreboardModal').classList.remove('show');
         });
 
+        document.getElementById('controlsButton').addEventListener('click', () => {
+            document.getElementById('controlsModal').classList.add('show');
+        });
+        document.getElementById('closeControls').addEventListener('click', () => {
+            document.getElementById('controlsModal').classList.remove('show');
+        });
+
         // Pause menu buttons
         document.getElementById('resumeButton').addEventListener('click', () => {
             this.gameState.togglePause();
@@ -133,9 +140,10 @@ class Game {
             const playerName = document.getElementById('playerNameInput').value.trim();
             if (playerName) {
                 const scoreToSave = this.gameState.tempScore || this.gameState.score;
-                this.gameState.addHighScoreWithScore(playerName, scoreToSave);
+                this.gameState.saveScore(scoreToSave, playerName);
                 document.getElementById('playerNameModal').classList.remove('show');
                 document.getElementById('scoreboardModal').classList.add('show');
+                this.gameState.updateHighScoreDisplay();
                 this.gameState.tempScore = null;
             }
         });
@@ -326,19 +334,23 @@ class Game {
         this.gameState.score = 0;
         this.gameState.gameSpeed = 5;
         this.gameState.updateScore(0);
-        
-        // Start countdown
+
+        // Always set state to COUNTDOWN and update UI
         this.gameState.setState(GAME_STATES.COUNTDOWN);
         const countdownElement = document.getElementById('countdown');
         let count = 3;
         countdownElement.textContent = count;
-        
+        document.getElementById('countdownOverlay').classList.remove('hidden');
+        document.getElementById('menuScreen').classList.add('hidden');
+        document.getElementById('gameScreen').classList.remove('hidden');
+
         const countdownInterval = setInterval(() => {
             count--;
             if (count > 0) {
                 countdownElement.textContent = count;
             } else {
                 clearInterval(countdownInterval);
+                document.getElementById('countdownOverlay').classList.add('hidden');
                 this.gameState.setState(GAME_STATES.PLAYING);
             }
         }, 1000);
@@ -361,6 +373,8 @@ class Game {
         if (this.gameState.state !== GAME_STATES.PLAYING) return;
 
         // Update game speed
+        // Progressive difficulty: increase speed and decrease spawn interval each time a hurdle is passed
+        const prevScore = this.gameState.score;
         this.gameState.updateGameSpeed();
 
         // Update track animation
@@ -380,7 +394,14 @@ class Game {
         }
 
         // Update score based on distance
-        this.gameState.updateScore(Math.floor(this.gameState.score + (this.gameState.gameSpeed * 0.5)));
+        const effectiveSpeed = Math.min(this.gameState.gameSpeed, 12); // Cap score ramping at max speed
+        this.gameState.updateScore(Math.floor(this.gameState.score + (effectiveSpeed * 0.5)));
+
+        // Progressive difficulty: if score increased by a hurdle, ramp up speed and decrease spawn interval
+        if (Math.floor(this.gameState.score / 100) > Math.floor(prevScore / 100)) {
+            this.gameState.gameSpeed = Math.min(this.gameState.gameSpeed + 0.2, 12); // Cap max speed
+            this.obstacleManager.baseSpawnDistance = Math.max(this.obstacleManager.baseSpawnDistance - 20, 70); // Cap min interval
+        }
 
         // Update dev mode visualization
         if (DEV_MODE) {
@@ -391,14 +412,8 @@ class Game {
 
     handleGameOver(reason) {
         const finalScore = this.gameState.getCurrentScore();
-        
-        if (this.gameState.isHighScore()) {
-            this.gameState.tempScore = finalScore;
-            document.getElementById('playerNameModal').classList.add('show');
-        } else {
-            this.showDeathReason(reason, finalScore);
-        }
-        
+        this.gameState.tempScore = finalScore;
+        document.getElementById('playerNameModal').classList.add('show');
         this.resetGame(true);
     }
 

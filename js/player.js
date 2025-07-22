@@ -229,8 +229,8 @@ class Player {
 
     getHitbox() {
         // Use constants if available, else fallback
-        const standingHeight = 2.0;
-        const slidingHeight = 1.0;
+        const standingHeight = 3.8;
+        const slidingHeight = 2.0;
         let hitboxWidth = 1.0;
         let hitboxHeight = standingHeight;
 
@@ -243,7 +243,7 @@ class Player {
         // Visual alignment: y = this.y - 0.2 (previous logic)
         const hitbox = {
             x: this.x - hitboxWidth / 2,
-            y: this.y - 0.2,
+            y: this.y - 1.2,
             width: hitboxWidth,
             height: hitboxHeight
         };
