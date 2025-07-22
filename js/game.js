@@ -147,6 +147,12 @@ class Game {
                 this.gameState.tempScore = null;
             }
         });
+        document.getElementById('dontSaveScore').addEventListener('click', () => {
+            console.log('Don\'t Save button clicked');
+            document.getElementById('playerNameModal').classList.remove('show');
+            // Do not save score, do not show scoreboard
+            this.gameState.tempScore = null;
+        });
 
         // Dev mode toggle
         document.addEventListener('keydown', (event) => {

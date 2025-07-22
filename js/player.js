@@ -103,22 +103,22 @@ class Player {
     handleKeyDown(event) {
         if (event.repeat) return;
 
-        switch (event.key.toLowerCase()) {
-            case 'a':
+        switch (event.code) {
+            case 'KeyA':
                 if (!this.keys.a && this.lane > 0) {
                     this.lane--;
                     this.targetX = -this.trackWidth / 2 + (this.lane + 0.5) * this.laneWidth;
                 }
                 this.keys.a = true;
                 break;
-            case 'd':
+            case 'KeyD':
                 if (!this.keys.d && this.lane < 2) {
                     this.lane++;
                     this.targetX = -this.trackWidth / 2 + (this.lane + 0.5) * this.laneWidth;
                 }
                 this.keys.d = true;
                 break;
-            case 'w':
+            case 'KeyW':
                 if (!this.keys.w && this.state === PLAYER_STATES.RUNNING) {
                     this.state = PLAYER_STATES.JUMPING;
                     this.jumpProgress = 0;
@@ -128,7 +128,7 @@ class Player {
                 }
                 this.keys.w = true;
                 break;
-            case 's':
+            case 'KeyS':
                 if (!this.keys.s && this.state === PLAYER_STATES.RUNNING) {
                     this.state = PLAYER_STATES.SLIDING;
                     this.slideProgress = 0;
@@ -139,17 +139,17 @@ class Player {
     }
 
     handleKeyUp(event) {
-        switch (event.key.toLowerCase()) {
-            case 'a':
+        switch (event.code) {
+            case 'KeyA':
                 this.keys.a = false;
                 break;
-            case 'd':
+            case 'KeyD':
                 this.keys.d = false;
                 break;
-            case 'w':
+            case 'KeyW':
                 this.keys.w = false;
                 break;
-            case 's':
+            case 'KeyS':
                 this.keys.s = false;
                 break;
         }
@@ -230,7 +230,7 @@ class Player {
     getHitbox() {
         // Use constants if available, else fallback
         const standingHeight = 3.8;
-        const slidingHeight = 2.0;
+        const slidingHeight = 2.5;
         let hitboxWidth = 1.0;
         let hitboxHeight = standingHeight;
 
@@ -243,7 +243,7 @@ class Player {
         // Visual alignment: y = this.y - 0.2 (previous logic)
         const hitbox = {
             x: this.x - hitboxWidth / 2,
-            y: this.y - 1.2,
+            y: this.y - 1.1,
             width: hitboxWidth,
             height: hitboxHeight
         };

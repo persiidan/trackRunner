@@ -38,7 +38,7 @@ class Obstacle {
             case OBSTACLE_TYPES.SMALL_HURDLE:
                 this.width = this.laneWidth * 0.6;
                 this.height = 1.5;
-                this.crossbarHeight = 0.6;
+                this.crossbarHeight = 0.4;
                 this.crossbarThickness = 0.2; // Increased from 0.2 to 0.3
                 this.color = 0x1976d2; // Blue crossbar
                 this.postColor = 0x000000; // Black posts
@@ -244,55 +244,24 @@ class ObstacleManager {
             // Player is at z=0, check obstacles in range -0.3 to 0.3
             if (obstacle.z > -0.3 && obstacle.z < 0.3) {
                 const obstacleHitbox = obstacle.getHitbox();
-                
-                // Debug logging
-                console.log(`Checking collision: ${obstacle.type} at z=${obstacle.z.toFixed(2)}`);
-                console.log(`Player hitbox:`, playerHitbox);
-                console.log(`Obstacle hitbox:`, obstacleHitbox);
-                
                 if (checkCollision(playerHitbox, obstacleHitbox)) {
-                    console.log(`COLLISION DETECTED with ${obstacle.type}!`);
-                    
-                    // Check if player can pass the obstacle based on their state
-                    const canPass = this.canPassObstacle(playerHitbox, obstacle);
-                    console.log(`Can pass: ${canPass}`);
-                    
-                    if (!canPass) {
-                        let reason = "Hit an obstacle";
-                        switch (obstacle.type) {
-                            case OBSTACLE_TYPES.TALL_HURDLE:
-                                reason = "Tall hurdle - should have slid under it";
-                                break;
-                            case OBSTACLE_TYPES.SMALL_HURDLE:
-                                reason = "Small hurdle - should have jumped over it";
-                                break;
-                            case OBSTACLE_TYPES.OVERHEAD_BARRIER:
-                                reason = "Overhead barrier - should have slid under it";
-                                break;
-                        }
-                        return { collision: true, reason: reason };
+                    let reason = "Hit an obstacle";
+                    switch (obstacle.type) {
+                        case OBSTACLE_TYPES.TALL_HURDLE:
+                            reason = "Tall hurdle - should have slid under it";
+                            break;
+                        case OBSTACLE_TYPES.SMALL_HURDLE:
+                            reason = "Small hurdle - should have jumped over it";
+                            break;
+                        case OBSTACLE_TYPES.OVERHEAD_BARRIER:
+                            reason = "Overhead barrier - should have slid under it";
+                            break;
                     }
+                    return { collision: true, reason: reason };
                 }
             }
         }
         return { collision: false, reason: "" };
-    }
-
-    canPassObstacle(playerHitbox, obstacle) {
-        const playerTop = playerHitbox.y + (playerHitbox.height / 2);
-        const playerBottom = playerHitbox.y - (playerHitbox.height / 2);
-
-        switch (obstacle.type) {
-            case OBSTACLE_TYPES.TALL_HURDLE:
-                // Can only pass if sliding AND top of hitbox is below crossbar
-                return playerHitbox.height <= 1.2 && (playerTop < obstacle.crossbarHeight);
-            case OBSTACLE_TYPES.SMALL_HURDLE:
-            case OBSTACLE_TYPES.OVERHEAD_BARRIER:
-                // Can only pass if jumping AND bottom of hitbox is above crossbar/barrier
-                return playerBottom > (obstacle.crossbarHeight || obstacle.barrierHeight);
-            default:
-                return false;
-        }
     }
 
     reset() {
